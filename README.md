@@ -11,6 +11,7 @@ holomorphic-maps uses [Electron](http://electron.atom.io/) as engine. You need t
 - 'holomorphic-maps-fastopt.js' file
 - 'holomorphic-maps-jsdeps.js' file
 - 'classes' folder
+
 Once compiled, you should copy-paste them in the 'electron' folder.
 
 ## How to use
