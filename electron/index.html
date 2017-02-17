@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8">
+    <title>Holomorphic maps</title>
+		<style>
+			/* Quicksand */
+			@font-face {
+				font-family: 'Quicksand';
+				font-weight: 700;
+				src: url('fonts/quicksand-bold.otf');
+			}
+
+			@font-face {
+				font-family: 'Quicksand';
+				font-weight: 400;
+				src: url('fonts/quicksand-regular.otf');
+			}
+		</style>
+	</head>
+  <body>
+		<canvas id="canvas" height="800" width="1200" tabindex="1"></canvas>
+		<script type = "text/javascript"></script>
+		<script>
+			const ScalaJS = require('./holomorphic-maps-fastopt.js')
+			ScalaJS.renderer.Renderer().main()
+		</script>
+  </body>
+</html>
