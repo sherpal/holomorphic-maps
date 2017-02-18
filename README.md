@@ -18,7 +18,6 @@ Once compiled, you should copy-paste them in the 'electron' folder.
 ### Steps to follow (at least for Windows):
 - download [Electron](http://electron.atom.io/)
 - download the [scalajs-ui](https://github.com/sherpal/scalajs-ui) library
-- compile it using `fastOptJS` or `fullOptJS`
 - `publishLocal` it
 - download this project
 - compile it using `fastOptJS` or `fullOptJS`
