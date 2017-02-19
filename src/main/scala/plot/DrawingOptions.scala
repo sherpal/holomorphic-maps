@@ -31,6 +31,7 @@ package plot
 import complex.Complex
 import gameengine.Engine
 import gui._
+import sharednodejsapis.NodeProcess
 import webglgraphics.Canvas2D
 
 /**
@@ -49,7 +50,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
   private val xOffset: Int = 30
   private val yOffset: Int = 30
 
-  private val lineButton: Button = new Button("", Some(this))
+  private val lineButton: Button = new Button(this)
   lineButton.setPoint(TopLeft, this, TopLeft, xOffset, -yOffset)
   lineButton.setSize(defaultButSize)
   private val lineButtonBG = lineButton.createTexture()
@@ -94,7 +95,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     ButtonTooltip.fadeOut()
   })
 
-  private val ellipseButton = new Button("", Some(this))
+  private val ellipseButton = new Button(this)
   ellipseButton.setPoint(TopLeft, lineButton, TopRight, 10)
   ellipseButton.setSize(defaultButSize)
   private val ellipseButtonBG = ellipseButton.createTexture()
@@ -114,7 +115,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     })
 
     Engine.painter.withColor(0, 0, 0)({
-      Engine.painter.drawEllipse(0, ellipseButton.width * 8 / 20, ellipseButton.height * 5 / 20, fill = false)
+      Engine.painter.drawEllipse(0, ellipseButton.width * 8 / 20, ellipseButton.height * 5 / 20, lineWidth = 2)
     })
   })
 
@@ -136,7 +137,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     ButtonTooltip.fadeOut()
   })
 
-  private val circleButton = new Button("", Some(this))
+  private val circleButton = new Button(this)
   circleButton.setPoint(TopLeft, ellipseButton, TopRight, 10)
   circleButton.setSize(defaultButSize)
   private val circleButtonBG = circleButton.createTexture()
@@ -156,7 +157,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     })
 
     Engine.painter.withColor(0, 0, 0)({
-      Engine.painter.drawEllipse(0, circleButton.width * 8 / 20, circleButton.height * 8 / 20, fill = false)
+      Engine.painter.drawEllipse(0, circleButton.width * 8 / 20, circleButton.height * 8 / 20, lineWidth = 2)
     })
   })
 
@@ -178,6 +179,138 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     ButtonTooltip.fadeOut()
   })
 
+  private val rectangleButton = new Button(this)
+  rectangleButton.setPoint(TopLeft, circleButton, TopRight, 10)
+  rectangleButton.setSize(defaultButSize)
+  private val rectangleButtonBG = rectangleButton.createTexture()
+  rectangleButtonBG.setAllPoints()
+  rectangleButtonBG.setVertexColor(0,0,0)
+  rectangleButtonBG.setMode(LineMode)
+
+  rectangleButton.setNormalTexture()
+  rectangleButton.normalTexture.get.setAllPoints()
+  rectangleButton.normalTexture.get.setTexture(new Canvas2D())
+  rectangleButton.normalTexture.get.canvas.get.setSize(rectangleButton.width.toInt, rectangleButton.height.toInt)
+  Engine.painter.withCanvases(rectangleButton.normalTexture.get.canvas.get)({
+    Engine.painter.withColor(200.0 / 255, 200.0 / 255, 200.0 / 255)({
+      Engine.painter.drawRectangle(
+        -circleButton.width / 2 + circleButton.height / 2 * Complex.i, circleButton.width, circleButton.height
+      )
+    })
+
+    Engine.painter.withColor(0.1, 0.1, 0.1)({
+      Engine.painter.drawRectangle(
+        Complex(-rectangleButton.width * 2 / 5, rectangleButton.height / 4),
+        circleButton.width * 4 / 5, circleButton.height / 2, lineWidth = 0)
+    })
+  })
+
+  rectangleButton.setPushedTexture(Button.makeSimplePushedTexture(rectangleButton))
+
+  rectangleButton.setScript(ScriptKind.OnClick)((_: Frame, _: Double, _: Double, button: Int) => {
+    if (button == 0)
+      PlotWindowsArea.setDrawMode(DrawAreaRectangle)
+  })
+
+  rectangleButton.setScript(ScriptKind.OnEnter)((self: Region, _: Region) => {
+    ButtonTooltip.clearLines()
+    ButtonTooltip.addLine("Set draw rectangle mode", 0, 0, 0, wrap = true, JustifyCenter)
+    ButtonTooltip.appearIn()
+    ButtonTooltip.setOwner(self.asInstanceOf[Frame])
+  })
+
+  rectangleButton.setScript(ScriptKind.OnLeave)((_: Region, _: Region) => {
+    ButtonTooltip.fadeOut()
+  })
+
+
+  private val filledEllipseButton = new Button(this)
+  filledEllipseButton.setPoint(TopLeft, rectangleButton, TopRight, 10)
+  filledEllipseButton.setSize(defaultButSize)
+  private val filledEllipseButtonBG = filledEllipseButton.createTexture()
+  filledEllipseButtonBG.setAllPoints()
+  filledEllipseButtonBG.setVertexColor(0,0,0)
+  filledEllipseButtonBG.setMode(LineMode)
+
+  filledEllipseButton.setNormalTexture()
+  filledEllipseButton.normalTexture.get.setAllPoints()
+  filledEllipseButton.normalTexture.get.setTexture(new Canvas2D())
+  filledEllipseButton.normalTexture.get.canvas.get.setSize(
+    filledEllipseButton.width.toInt, filledEllipseButton.height.toInt)
+  Engine.painter.withCanvases(filledEllipseButton.normalTexture.get.canvas.get)({
+    Engine.painter.withColor(200.0 / 255, 200.0 / 255, 200.0 / 255)({
+      Engine.painter.drawRectangle(
+        -filledEllipseButton.width / 2 + filledEllipseButton.height / 2 * Complex.i,
+        filledEllipseButton.width, filledEllipseButton.height
+      )
+    })
+
+    Engine.painter.withColor(0.1, 0.1, 0.1)({
+      Engine.painter.drawEllipse(0, filledEllipseButton.width * 8 / 20, filledEllipseButton.height * 5 / 20,
+        lineWidth = 0)
+    })
+  })
+
+  filledEllipseButton.setPushedTexture(Button.makeSimplePushedTexture(filledEllipseButton))
+
+  filledEllipseButton.setScript(ScriptKind.OnClick)((_: Frame, _: Double, _: Double, button: Int) => {
+    if (button == 0)
+      PlotWindowsArea.setDrawMode(DrawAreaFillEllipse)
+  })
+
+  filledEllipseButton.setScript(ScriptKind.OnEnter)((self: Region, _: Region) => {
+    ButtonTooltip.clearLines()
+    ButtonTooltip.addLine("Set draw filled ellipse", 0, 0, 0, wrap = true, JustifyCenter)
+    ButtonTooltip.appearIn()
+    ButtonTooltip.setOwner(self.asInstanceOf[Frame])
+  })
+
+  filledEllipseButton.setScript(ScriptKind.OnLeave)((_: Region, _: Region) => {
+    ButtonTooltip.fadeOut()
+  })
+
+
+  private val diskButton = new Button(this)
+  diskButton.setPoint(TopLeft, filledEllipseButton, TopRight, 10)
+  diskButton.setSize(defaultButSize)
+  private val diskButtonBG = diskButton.createTexture()
+  diskButtonBG.setAllPoints()
+  diskButtonBG.setVertexColor(0,0,0)
+  diskButtonBG.setMode(LineMode)
+
+  diskButton.setNormalTexture()
+  diskButton.normalTexture.get.setAllPoints()
+  diskButton.normalTexture.get.setTexture(new Canvas2D())
+  diskButton.normalTexture.get.canvas.get.setSize(diskButton.width.toInt, diskButton.height.toInt)
+  Engine.painter.withCanvases(diskButton.normalTexture.get.canvas.get)({
+    Engine.painter.withColor(200.0 / 255, 200.0 / 255, 200.0 / 255)({
+      Engine.painter.drawRectangle(
+        -diskButton.width / 2 + diskButton.height / 2 * Complex.i, diskButton.width, diskButton.height
+      )
+    })
+
+    Engine.painter.withColor(0.1, 0.1, 0.1)({
+      Engine.painter.drawEllipse(0, diskButton.width * 8 / 20, diskButton.height * 8 / 20, lineWidth = 0)
+    })
+  })
+
+  diskButton.setPushedTexture(Button.makeSimplePushedTexture(diskButton))
+
+  diskButton.setScript(ScriptKind.OnClick)((_: Frame, _: Double, _: Double, button: Int) => {
+    if (button == 0)
+      PlotWindowsArea.setDrawMode(DrawAreaFillCircle)
+  })
+
+  diskButton.setScript(ScriptKind.OnEnter)((self: Region, _: Region) => {
+    ButtonTooltip.clearLines()
+    ButtonTooltip.addLine("Set draw disk mode", 0, 0, 0, wrap = true, JustifyCenter)
+    ButtonTooltip.appearIn()
+    ButtonTooltip.setOwner(self.asInstanceOf[Frame])
+  })
+
+  diskButton.setScript(ScriptKind.OnLeave)((_: Region, _: Region) => {
+    ButtonTooltip.fadeOut()
+  })
 
   //TODO: cancel button
 
@@ -289,6 +422,10 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
         FunctionOptions.changeFocusedButton(1)
       case "Enter" =>
         DebugWindow
+        DebugWindow.addData((_: Double) => {
+          val processInfo = NodeProcess.memoryUsage()
+          "Memory usage: " + (processInfo.heapUsed / 1024 / 1024) + " mb"
+        })
       case _ =>
     }
   })

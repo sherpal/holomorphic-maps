@@ -85,7 +85,7 @@ class DrawArea(val plot: Plot) extends Frame {
       }
 
       Engine.painter.withColor(170.0 / 255, 170.0 / 255, 170.0 / 255)({
-        Engine.painter.drawEllipse(0, xUnit, yUnit, segments = 100, fill = false)
+        Engine.painter.drawEllipse(0, xUnit, yUnit, segments = 100, lineWidth = 2)
       })
     })
   }
@@ -104,7 +104,7 @@ class DrawArea(val plot: Plot) extends Frame {
     val drawArea = f.asInstanceOf[DrawArea]
     if (drawArea.dragging.isDefined) {
       Action.addAction(() => {
-        drawArea.plot.removeChild(drawArea.dragging.get.line)
+        drawArea.plot.removeChild(drawArea.dragging.get.drawable)
       })
 
       if (math.max(math.abs(x - drawArea.dragging.get.startX), math.abs(y - drawArea.dragging.get.startY)) < 5)
@@ -126,15 +126,41 @@ class DrawArea(val plot: Plot) extends Frame {
 
       info.mode match {
         case DrawAreaLine =>
-          info.line.asInstanceOf[Segment].to = currentPoint
+          info.drawable.asInstanceOf[Segment].to = currentPoint
         case DrawAreaEllipse =>
-          val e = info.line.asInstanceOf[Ellipse]
+          val e = info.drawable.asInstanceOf[Ellipse]
           e.center = (info.startPoint + currentPoint) / 2
           val direction = currentPoint - info.startPoint
           e.xRadius = math.abs(direction.re / 2)
           e.yRadius = math.abs(direction.im / 2)
         case DrawAreaCircle =>
-          val c = info.line.asInstanceOf[Ellipse]
+          val c = info.drawable.asInstanceOf[Ellipse]
+          val direction = currentPoint - info.startPoint
+          val radius = math.min(math.abs(direction.re / 2), math.abs(direction.im / 2))
+          c.xRadius = radius
+          c.yRadius = radius
+
+          c.center = info.startPoint
+          (direction.re > 0, direction.im > 0) match {
+            case (true, true) => c.center += radius + Complex.i * radius
+            case (true, false) => c.center += radius - Complex.i * radius
+            case (false, true) => c.center += -radius + Complex.i * radius
+            case (false, false) => c.center += - radius - Complex.i * radius
+          }
+        case DrawAreaRectangle =>
+          val rect = info.drawable.asInstanceOf[RectangleShape]
+          rect.topLeft = Complex(math.min(info.startPoint.re, currentPoint.re),
+            math.max(info.startPoint.im, currentPoint.im))
+          rect.width = math.abs(info.startPoint.re - currentPoint.re)
+          rect.height = math.abs(info.startPoint.im - currentPoint.im)
+        case DrawAreaFillEllipse =>
+          val e = info.drawable.asInstanceOf[EllipseShape]
+          e.center = (info.startPoint + currentPoint) / 2
+          val direction = currentPoint - info.startPoint
+          e.xRadius = math.abs(direction.re / 2)
+          e.yRadius = math.abs(direction.im / 2)
+        case DrawAreaFillCircle =>
+          val c = info.drawable.asInstanceOf[EllipseShape]
           val direction = currentPoint - info.startPoint
           val radius = math.min(math.abs(direction.re / 2), math.abs(direction.im / 2))
           c.xRadius = radius
@@ -148,7 +174,7 @@ class DrawArea(val plot: Plot) extends Frame {
             case (false, false) => c.center += - radius - Complex.i * radius
           }
       }
-      info.line.draw()
+      info.drawable.draw()
     }
   })
 }
@@ -171,8 +197,12 @@ class DrawAreaDragging(val startX: Double, val startY: Double, val drawArea: Dra
   val mode: DrawAreaMode = drawArea.drawMode
   val startPoint: Complex = DrawArea.fromCoordsToComplex(
     drawArea, startX - drawArea.left - drawArea.width / 2, startY - drawArea.bottom - drawArea.height / 2)
-  val line: Line = mode match {
+  val drawable: DrawableInPlot = mode match {
     case DrawAreaLine => new Segment(drawArea.plot, drawArea.drawColors, startPoint, startPoint)
-    case _ => new Ellipse(drawArea.plot, drawArea.drawColors, startPoint, 1/1000, 1/1000)
+    case DrawAreaEllipse => new Ellipse(drawArea.plot, drawArea.drawColors, startPoint, 0.001, 0.001)
+    case DrawAreaCircle => new Ellipse(drawArea.plot, drawArea.drawColors, startPoint, 0.001, 0.001)
+    case DrawAreaRectangle => new RectangleShape(drawArea.plot, drawArea.drawColors, startPoint, 0.001, 0.001)
+    case DrawAreaFillEllipse => new EllipseShape(drawArea.plot, drawArea.drawColors, startPoint, 0.001, 0.001)
+    case DrawAreaFillCircle => new EllipseShape(drawArea.plot, drawArea.drawColors, startPoint, 0.001, 0.001)
   }
 }

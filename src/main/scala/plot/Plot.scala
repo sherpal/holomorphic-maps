@@ -106,27 +106,44 @@ class Plot(name: String = "") extends Frame {
 
 
   val lineChildren: mutable.Set[Line] = mutable.Set()
+  val shapeChildren: mutable.Set[Shape] = mutable.Set()
 
   def childrenLines: Set[Line] = lineChildren.toSet
+
+  def childrenShapes: Set[Shape] = shapeChildren.toSet
 
   def removeAllChildren(): Unit = {
     clear()
     lineChildren.clear()
+    shapeChildren.clear()
   }
 
-  def removeChild(line: Line): Unit = {
-    line.hide()
-    lineChildren -= line
+  def removeChild(child: DrawableInPlot): Unit = child match {
+    case line: Line =>
+      line.hide()
+      lineChildren -= line
+    case shape: Shape =>
+      shape.hide()
+      shapeChildren -= shape
   }
 
-  def addChild(line: Line): Unit =
-    lineChildren += line
+  def addChild(child: DrawableInPlot): Unit = child match {
+    case line: Line =>
+      lineChildren += line
+    case shape: Shape =>
+      shapeChildren += shape
+  }
 
   def clearLine(line: Line): Unit =
     line.hide()
 
-  def clear(): Unit =
+  def clearShape(shape: Shape): Unit =
+    shape.hide()
+
+  def clear(): Unit = {
     lineChildren.foreach(_.hide())
+    shapeChildren.foreach(_.hide())
+  }
 
 
   private var realAxisMin: Double = -2
@@ -178,6 +195,14 @@ class Plot(name: String = "") extends Frame {
 
     lineChildren.filter(_.isShown).foreach(line => {
       new Line(newPlot, line.colors, line.stepPoints.map(holomorphicMap.f(_)), isCycle = line.cycle)
+    })
+
+    shapeChildren.filter(_.isShown).foreach(shape => {
+      val newTriangles = shape.triangles.map((t: Triangle) => {
+        val newVertices = t.triangleVertices.tail.map(holomorphicMap.f(_))
+        (newVertices.head, newVertices.tail.head, newVertices.tail.tail.head)
+      })
+      val s = new RawShape(newPlot, shape.colors, newTriangles)
     })
 
     newPlot

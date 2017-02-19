@@ -71,3 +71,6 @@ abstract sealed class DrawAreaMode
 case object DrawAreaLine extends DrawAreaMode
 case object DrawAreaCircle extends DrawAreaMode
 case object DrawAreaEllipse extends DrawAreaMode
+case object DrawAreaRectangle extends DrawAreaMode
+case object DrawAreaFillEllipse extends DrawAreaMode
+case object DrawAreaFillCircle extends DrawAreaMode

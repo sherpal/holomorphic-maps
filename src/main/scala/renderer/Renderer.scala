@@ -32,7 +32,6 @@ package renderer
 import gameengine.{Engine, GameState}
 import gui._
 import plot._
-import sharednodejsapis.NodeProcess
 
 import scala.scalajs.js.JSApp
 
@@ -44,13 +43,6 @@ object Renderer extends JSApp {
     Engine.painter.setBackgroundColor(1,1,1)
     DrawingOptions
     FunctionOptions
-
-    // Uncomment the few next lines to see an example of use of the DebugWindow
-//    DebugWindow
-//    DebugWindow.addData((_: Double) => {
-//      val processInfo = NodeProcess.memoryUsage()
-//      "Memory usage: " + (processInfo.heapUsed / 1024 / 1024) + " mb"
-//    })
 
     val state = new GameState(draw = () => {
       Frame.drawAllFrames()
