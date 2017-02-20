@@ -58,6 +58,9 @@ object FunctionOptions extends Frame("FunctionOptions", Some(UIParent)) {
 
   var holomorphicMaps: List[HolomorphicMap] = List(
     HolomorphicMap("Identity", "id", z => z),
+    HolomorphicMap("Flip", "minus", z => -z),
+    HolomorphicMap("Quarter rotation", "itimes", z => Complex.i * z),
+    HolomorphicMap("Height rotation", "heigthtimes", z => Complex.rotation(math.Pi / 4) * z),
     HolomorphicMap("Square", "sqr", z => z * z),
     HolomorphicMap("Cube", "cube", z => z^3),
     HolomorphicMap("Square root", "sqrt", z => z^0.5, Some("(-Inf,0]")),
@@ -85,7 +88,7 @@ object FunctionOptions extends Frame("FunctionOptions", Some(UIParent)) {
     var buttons: List[FunctionButton] = List()
   }
 
-  private class FunctionButton(val holomorphicMap: HolomorphicMap) extends Button("", Some(scrollChild)) {
+  private class FunctionButton(val holomorphicMap: HolomorphicMap) extends Button(scrollChild) {
     setWidth(scrollChild.width - 5)
     setHeight(30)
     scrollChild.setHeight(scrollChild.height + this.height)
@@ -124,6 +127,7 @@ object FunctionOptions extends Frame("FunctionOptions", Some(UIParent)) {
         thisBut.funcName.setTextColor()
 
         PlotWindowsArea.mapFunction = this.holomorphicMap
+        ScrollBar.adaptValueToFocusedButton()
       }
     })
 
@@ -150,20 +154,11 @@ object FunctionOptions extends Frame("FunctionOptions", Some(UIParent)) {
         val (x, y) = scrollChild.buttons.head.center
         scrollChild.buttons.head.click(x, y, 0)
     }
+
+    ScrollBar.adaptValueToFocusedButton()
   }
 
-  scrollFrame.setScript(ScriptKind.OnWheelMoved)((self: Frame, _: Int, dy: Int) => {
-    val (x, y) = Engine.mousePosition
-    if (self.isMouseOver(x, y))
-      changeFocusedButton(dy)
-  })
-
-  // we need to do this funny for loop because of the anchors of the buttons
-  for (map <- holomorphicMaps) {
-    scrollChild.buttons = scrollChild.buttons :+ new FunctionButton(map)
-  }
-
-  object mapButton extends Button("", Some(this)) {
+  object mapButton extends Button(this) {
     setPoint(Right, header, Right, -10)
     setSize(50, 20)
     setText("Map")
@@ -205,4 +200,59 @@ object FunctionOptions extends Frame("FunctionOptions", Some(UIParent)) {
 
 
   scrollFrame.setScrollChild(scrollChild)
+
+  private object ScrollBar extends Slider(this) {
+    private val outer = FunctionOptions.this
+    setPoint(BottomRight, outer, BottomRight)
+    setPoint(TopRight, header, BottomRight)
+    setWidth(15)
+
+    thumbTexture.setWidth(15)
+    setStep(Some(1))
+    setOrientation(VerticalBar)
+
+    private val bg = createTexture()
+    bg.setAllPoints()
+    bg.setVertexColor(0.8,0.8,0.8)
+
+    setScript(ScriptKind.OnValueChanged)((_: ValueBar, value: Double, _: Double) => {
+      scrollFrame.setVerticalScroll(scrollFrame.verticalScrollRange - value)
+    })
+
+    setScript(ScriptKind.OnMinMaxValuesChanged)((_: ValueBar, min: Double, max: Double) => {
+      setThumbLength(math.max(20, height - max + min))
+    })
+
+    setMinMaxValues(0,0)
+
+    def adaptValueToFocusedButton(): Unit = {
+      if (focusedButton.get.top > scrollFrame.top) {
+        ScrollBar.setValue(scrollFrame.verticalScrollRange - (scrollChild.top - focusedButton.get.top))
+      } else if (focusedButton.get.bottom < scrollFrame.bottom) {
+        ScrollBar.setValue(scrollFrame.verticalScrollRange -
+          (scrollFrame.bottom - scrollFrame.top + scrollChild.top - focusedButton.get.bottom))
+      }
+    }
+  }
+
+  scrollFrame.setScript(ScriptKind.OnWheelMoved)((self: Frame, _: Int, dy: Int) => {
+    val (x, y) = Engine.mousePosition
+    if (self.isMouseOver(x, y))
+      changeFocusedButton(dy)
+  })
+
+  scrollFrame.setScript(ScriptKind.OnScrollRangeChanged)((_: ScrollFrame, _: Double, range: Double) => {
+    ScrollBar.setMinMaxValues(0, range)
+    ScrollBar.setValue(ScrollBar.value)
+  })
+
+  ScrollBar
+
+
+  // we need to do this funny for loop because of the anchors of the buttons
+  for (map <- holomorphicMaps) {
+    scrollChild.buttons = scrollChild.buttons :+ new FunctionButton(map)
+  }
+
+  ScrollBar.setValue(scrollFrame.verticalScrollRange)
 }

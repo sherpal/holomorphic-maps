@@ -179,6 +179,10 @@ class Plot(name: String = "") extends Frame {
   val drawArea: DrawArea = new DrawArea(this)
 
 
+  /**
+   * Maps every line and shape through the map holomorphicMap.
+   * If the poles of the map are referenced correctly, it will not map a Triangle that contains a pole by the map.
+   */
   def map(holomorphicMap: HolomorphicMap): Plot = {
     val newPlot = new Plot(holomorphicMap.name)
     val newPlotBehind = newPlot.behind
@@ -198,11 +202,13 @@ class Plot(name: String = "") extends Frame {
     })
 
     shapeChildren.filter(_.isShown).foreach(shape => {
-      val newTriangles = shape.triangles.map((t: Triangle) => {
+      val newTriangles = shape.triangles
+        .filter((t: Triangle) => holomorphicMap.singularities.forall(!t.contains(_)))
+        .map((t: Triangle) => {
         val newVertices = t.triangleVertices.tail.map(holomorphicMap.f(_))
         (newVertices.head, newVertices.tail.head, newVertices.tail.tail.head)
       })
-      val s = new RawShape(newPlot, shape.colors, newTriangles)
+      new RawShape(newPlot, shape.colors, newTriangles)
     })
 
     newPlot

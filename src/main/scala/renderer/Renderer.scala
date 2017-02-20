@@ -28,15 +28,11 @@
 
 package renderer
 
-
 import gameengine.{Engine, GameState}
 import gui._
 import plot._
 
 import scala.scalajs.js.JSApp
-
-
-
 
 object Renderer extends JSApp {
   def main(): Unit = {

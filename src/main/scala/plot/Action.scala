@@ -33,15 +33,24 @@ package plot
  *
  * We record all Actions performed in order to cancel them with the cancel button or ctrl+z.
  */
-object Action {
-  private var allActions: List[() => Unit] = List()
 
-  def addAction(callback: () => Unit): Unit = {
-    allActions = callback +: allActions
+trait Action {
+  protected def cancel(): Unit
+}
+
+class NewDrawableInPlotAction(drawable: DrawableInPlot) extends Action {
+  protected def cancel(): Unit = drawable.plot.removeChild(drawable)
+}
+
+object Action {
+  private var allActions: List[Action] = List()
+
+  def addAction(action: Action): Unit = {
+    allActions = action +: allActions
   }
 
   def cancelAction(): Unit = if (allActions.nonEmpty) {
-    allActions.head.apply()
+    allActions.head.cancel()
     allActions = allActions.tail
   }
 }

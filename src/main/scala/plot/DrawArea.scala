@@ -103,9 +103,7 @@ class DrawArea(val plot: Plot) extends Frame {
   setScript(ScriptKind.OnMouseReleased)((f: Frame, x: Double, y: Double, button: Int) => if (button == 0) {
     val drawArea = f.asInstanceOf[DrawArea]
     if (drawArea.dragging.isDefined) {
-      Action.addAction(() => {
-        drawArea.plot.removeChild(drawArea.dragging.get.drawable)
-      })
+      Action.addAction(new NewDrawableInPlotAction(drawArea.dragging.get.drawable))
 
       if (math.max(math.abs(x - drawArea.dragging.get.startX), math.abs(y - drawArea.dragging.get.startY)) < 5)
         Action.cancelAction()

@@ -1,3 +1,30 @@
+/**
+ * License
+ * =======
+ *
+ * The MIT License (MIT)
+ *
+ *
+ * Copyright (c) 2017 Antoine DOERAENE @sherpal
+ *
+ * Permission is hereby granted, free of charge, to any person obtaining a copy of
+ * this software and associated documentation files (the "Software"), to deal in
+ * the Software without restriction, including without limitation the rights to
+ * use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of
+ * the Software, and to permit persons to whom the Software is furnished to do so,
+ * subject to the following conditions:
+ *
+ * The above copyright notice and this permission notice shall be included in all
+ * copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+ * IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS
+ * FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR
+ * COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER
+ * IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN
+ * CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+ */
+
 package plot
 
 import complex.Complex
@@ -89,4 +116,19 @@ class Triangle(val shape: Shape, var colors: (Double, Double, Double), v1: Compl
       math.max(realAxis._1, boundingBox._2) <= math.min(realAxis._2, boundingBox._4) &&
       math.max(imaginaryAxis._1, boundingBox._3) <= math.min(imaginaryAxis._2, boundingBox._1)
     }
+
+  def contains(z: Complex): Boolean = contains(z.re, z.im)
+
+  def contains(x: Double, y: Double): Boolean = {
+    val coef1 = (v3.im - v1.im) * (x - v1.re) - (v3.re - v1.re) * (y - v1.im)
+    val coef2 = (v2.re - v1.re) * (y - v1.im) - (v2.im - v1.im) * (x - v1.re)
+
+    val det = (v2 - v1) crossProduct (v3 - v1)
+
+    if (det > 0) {
+      coef1 >= 0 && coef2 >= 0 && coef1 + coef2 <= det
+    } else {
+      coef1 <= 0 && coef2 <= 0 && coef1 + coef2 >= det
+    }
+  }
 }

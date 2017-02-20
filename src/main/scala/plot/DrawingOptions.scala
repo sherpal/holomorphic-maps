@@ -414,8 +414,8 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
       case "c" if Engine.isDown("Control") =>
         val (x, y) = circleButton.center
         circleButton.click(x,y,0)
-//      case "z" if Engine.isDown("Control") =>
-//        Action.cancelAction()
+      case "z" if Engine.isDown("Control") =>
+        Action.cancelAction()
       case "ArrowUp" =>
         FunctionOptions.changeFocusedButton(-1)
       case "ArrowDown" =>
