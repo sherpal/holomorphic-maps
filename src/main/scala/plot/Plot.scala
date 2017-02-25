@@ -198,7 +198,8 @@ class Plot(name: String = "") extends Frame {
     newPlot.setAxes(ImaginaryTag, this.axes._2._1, this.axes._2._2)
 
     lineChildren.filter(_.isShown).foreach(line => {
-      new Line(newPlot, line.colors, line.stepPoints.map(holomorphicMap.f(_)), isCycle = line.cycle)
+      val stepPoints = line.stepPoints.filterNot(holomorphicMap.singularities.contains(_))
+      new Line(newPlot, line.colors, stepPoints.map(holomorphicMap.f(_)), isCycle = line.cycle)
     })
 
     shapeChildren.filter(_.isShown).foreach(shape => {

@@ -50,7 +50,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
   private val xOffset: Int = 30
   private val yOffset: Int = 30
 
-  private val lineButton: Button = new Button(this)
+  val lineButton: Button = new Button(this)
   lineButton.setPoint(TopLeft, this, TopLeft, xOffset, -yOffset)
   lineButton.setSize(defaultButSize)
   private val lineButtonBG = lineButton.createTexture()
@@ -95,7 +95,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     ButtonTooltip.fadeOut()
   })
 
-  private val ellipseButton = new Button(this)
+  val ellipseButton = new Button(this)
   ellipseButton.setPoint(TopLeft, lineButton, TopRight, 10)
   ellipseButton.setSize(defaultButSize)
   private val ellipseButtonBG = ellipseButton.createTexture()
@@ -137,7 +137,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     ButtonTooltip.fadeOut()
   })
 
-  private val circleButton = new Button(this)
+  val circleButton = new Button(this)
   circleButton.setPoint(TopLeft, ellipseButton, TopRight, 10)
   circleButton.setSize(defaultButSize)
   private val circleButtonBG = circleButton.createTexture()
@@ -179,7 +179,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     ButtonTooltip.fadeOut()
   })
 
-  private val rectangleButton = new Button(this)
+  val rectangleButton = new Button(this)
   rectangleButton.setPoint(TopLeft, circleButton, TopRight, 10)
   rectangleButton.setSize(defaultButSize)
   private val rectangleButtonBG = rectangleButton.createTexture()
@@ -224,7 +224,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
   })
 
 
-  private val filledEllipseButton = new Button(this)
+  val filledEllipseButton = new Button(this)
   filledEllipseButton.setPoint(TopLeft, rectangleButton, TopRight, 10)
   filledEllipseButton.setSize(defaultButSize)
   private val filledEllipseButtonBG = filledEllipseButton.createTexture()
@@ -343,7 +343,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     PlotWindowsArea.drawColor._3
   )
 
-  private val red = new Slider("", Some(this))
+  private val red = new Slider(this)
   red.setPoint(TopLeft, chosenColor, TopRight, 10)
   red.setPoint(TopRight, this, TopRight, -10, chosenColor.top - this.top)
   red.setHeight(slidersHeight)
@@ -363,7 +363,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     PlotWindowsArea.setDrawColor(value / 255, g, b)
   })
 
-  private val green = new Slider("", Some(this))
+  private val green = new Slider(this)
   green.setPoint(TopLeft, red, BottomLeft, 0, -slidersSpace)
   green.setPoint(TopRight, red, BottomRight, 0, -slidersSpace)
   green.setHeight(slidersHeight)
@@ -383,7 +383,7 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     PlotWindowsArea.setDrawColor(r, value / 255, b)
   })
 
-  private val blue = new Slider("", Some(this))
+  private val blue = new Slider(this)
   blue.setPoint(TopLeft, green, BottomLeft, 0, -slidersSpace)
   blue.setPoint(TopRight, green, BottomRight, 0, -slidersSpace)
   blue.setHeight(slidersHeight)
@@ -403,6 +403,45 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
     PlotWindowsArea.setDrawColor(r, g, value / 255)
   })
 
+  def setColor(r: Int, g: Int, b: Int): Unit = {
+    red.setValue(if (r < 0) 0 else if (r > 255) 255 else r)
+    green.setValue(if (g < 0) 0 else if (g > 255) 255 else g)
+    blue.setValue(if (b < 0) 0 else if (b > 255) 255 else b)
+  }
+
+  private val newDrawsButton = new Button(this)
+  newDrawsButton.setSize(defaultButSize)
+  newDrawsButton.setPoint(TopLeft, chosenColor, BottomLeft, 0, -20)
+  newDrawsButton.setNormalTexture("./pics/numerical_drawing.png")
+  newDrawsButton.normalTexture.get.setAllPoints()
+  newDrawsButton.setScript(ScriptKind.OnEnter)((_: Frame, _: Frame) => {
+    newDrawsButton.setPushedTexture(Button.makeSimplePushedTexture(newDrawsButton))
+    newDrawsButton.removeScript(ScriptKind.OnEnter)
+  })
+  newDrawsButton.setScript(ScriptKind.OnMouseReleased)((_: Frame, _: Double, _: Double, button: Int) => {
+    if (button == 0) {
+      windows.NewDraws.show()
+    }
+  })
+  newDrawsButton.setScript(ScriptKind.OnEnter)((self: Frame, _: Frame) => {
+    ButtonTooltip.clearLines()
+    ButtonTooltip.addLine("Draw with numeric values", 0, 0, 0, wrap = true, JustifyCenter)
+    ButtonTooltip.appearIn()
+    ButtonTooltip.setOwner(self)
+  })
+  newDrawsButton.setScript(ScriptKind.OnLeave)((_: Frame, _: Frame) => {
+    ButtonTooltip.fadeOut()
+  })
+
+
+
+
+  DebugWindow.addData((_: Double) => {
+    val processInfo = NodeProcess.memoryUsage()
+    "Memory usage: " + (processInfo.heapUsed / 1024 / 1024) + " mb"
+  })
+  DebugWindow.hide()
+
   setScript(ScriptKind.OnKeyReleased)((_: Frame, key: String) => {
     key match {
       case "l" if Engine.isDown("Control") =>
@@ -420,12 +459,11 @@ object DrawingOptions extends Frame("DrawingOptions", Some(UIParent)) {
         FunctionOptions.changeFocusedButton(-1)
       case "ArrowDown" =>
         FunctionOptions.changeFocusedButton(1)
-      case "Enter" =>
-        DebugWindow
-        DebugWindow.addData((_: Double) => {
-          val processInfo = NodeProcess.memoryUsage()
-          "Memory usage: " + (processInfo.heapUsed / 1024 / 1024) + " mb"
-        })
+      case "F1" =>
+        if (DebugWindow.isVisible)
+          DebugWindow.hide()
+        else
+          DebugWindow.show()
       case _ =>
     }
   })

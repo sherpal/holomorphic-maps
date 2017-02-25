@@ -32,7 +32,7 @@ import gui._
 /**
  * This Tooltip will be used and recycled for every button of the UI.
  */
-object ButtonTooltip extends Tooltip("", Some(UIParent)) {
+object ButtonTooltip extends Tooltip(UIParent) {
   setSize(100, 20)
   setPoint(Center)
   setAutoAdjustHeight(enable = true)

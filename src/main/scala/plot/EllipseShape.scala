@@ -47,7 +47,7 @@ class EllipseShape(val plot: Plot, var colors: (Double, Double, Double),
    * are.
    */
   def drawTriangles: List[Triangle] = {
-    val angleThreshold = math.Pi / 20
+    val angleThreshold = math.Pi / 40
 
     def drawTrianglesAcc(acc: List[Triangle], angles: List[(Double, Double)]): List[Triangle] = {
       if (math.abs(angles.head._1 - angles.head._2) < angleThreshold) {
@@ -57,7 +57,7 @@ class EllipseShape(val plot: Plot, var colors: (Double, Double, Double),
           (for (deltaAngle <- angles) yield {
           (
             new Triangle(
-              this, colors,
+              this,
               center + Complex(xRadius * math.cos(deltaAngle._1), yRadius * math.sin(deltaAngle._1)),
               center + Complex(xRadius * math.cos(deltaAngle._2), yRadius * math.sin(deltaAngle._2)),
               center + Complex(xRadius * math.cos((deltaAngle._1 + deltaAngle._2) / 2),
@@ -73,17 +73,6 @@ class EllipseShape(val plot: Plot, var colors: (Double, Double, Double),
 
     drawTrianglesAcc(List[Triangle](), List((0, math.Pi), (math.Pi, 2 * math.Pi)))
   }
-
-//  def drawTriangles: List[Triangle] = (for (j <- 0 to 1000) yield {
-//    (
-//      center,
-//      center + Complex(xRadius * math.cos(j * 2 * math.Pi / 1000), yRadius * math.sin(j * 2 * math.Pi / 1000)),
-//      center + Complex(xRadius * math.cos((j + 1) * 2 * math.Pi / 1000),
-//        yRadius * math.sin((j + 1) * 2 * math.Pi / 1000))
-//    )
-//  }).map({case (v1: Complex, v2: Complex, v3: Complex) =>
-//      new Triangle(this, colors, v1, v2, v3)
-//  }).toList
 
   draw()
 }

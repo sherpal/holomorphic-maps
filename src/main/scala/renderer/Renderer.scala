@@ -30,6 +30,9 @@ package renderer
 
 import gameengine.{Engine, GameState}
 import gui._
+import org.scalajs.dom
+import org.scalajs.dom.html
+import org.scalajs.dom.raw.{CanvasRenderingContext2D, Event}
 import plot._
 
 import scala.scalajs.js.JSApp
@@ -39,6 +42,13 @@ object Renderer extends JSApp {
     Engine.painter.setBackgroundColor(1,1,1)
     DrawingOptions
     FunctionOptions
+
+    val image = dom.document.createElement("img").asInstanceOf[html.Image]
+    image.onload = (_: Event) => {
+      dom.document.getElementById("canvas").asInstanceOf[html.Canvas].getContext("2d")
+        .asInstanceOf[CanvasRenderingContext2D].drawImage(image, 0.1,0.1, 50.5, 50.2)
+    }
+    image.src = "./pics/numerical_drawing.png"
 
     val state = new GameState(draw = () => {
       Frame.drawAllFrames()

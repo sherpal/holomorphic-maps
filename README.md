@@ -29,7 +29,7 @@ Once compiled, you should copy-paste them in the 'electron' folder.
 The software allows you to draw lines, circles, ellipses, rectangles, disks and filled ellipses on the Complex plane restricted to [-2,2] x [-2,2]. You can then chose a function from the list and map everything by that function.
 As is standard, CTRL+Z cancels the last line or shape drawn.
 
-You can also press Enter (after the canvas got focus) to see an example of the DebugWindow from the UI.
+You can also press F1 (after the canvas got focus) to see an example of the DebugWindow from the UI.
 
 ## Holomorphic maps?
 
